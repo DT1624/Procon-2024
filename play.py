@@ -7,13 +7,13 @@ url = "https://proconvn.duckdns.org"
 headers = {"Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsIm5hbWUiOiJibHVlY2F0IiwiaXNfYWRtaW4iOmZhbHNlLCJpYXQiOjE3MjQ4MDc1MDYsImV4cCI6MTcyNDk4MDMwNn0.D89kJUMk6RF7-7zbUxszJwJDY78OetESZopSfGmZSyE"}
 
 # request question from server
-question_id = 32
+question_id = 29
 question = requests.get(f"{url}/question/{question_id}", headers=headers).json()
 a = json.loads(question["question_data"])["board"]["start"] + json.loads(question["question_data"])["board"]["goal"]
 b = json.loads(question["question_data"])["board"]
-print(b["height"])
+#print(b["height"])
 #for value in b: print(value)
-print(b)
+#print(b)
 
 with open("input.txt", "w") as file:
     file.writelines(str(b["width"]) + "\n")
