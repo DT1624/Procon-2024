@@ -2,8 +2,25 @@
 using namespace std;
 const int maxn = 256;
 
-int dx[3] = {0, 1, 0};
-int dy[3] = {-1, 0, 1};
+//int dx[3] = {0, 1, 0};
+//int dy[3] = {-1, 0, 1};
+
+//int dx[3] = {0, 0, 1};
+//int dy[3] = {-1, 1, 0};
+
+//int dx[3] = {0, 0, 1};
+//int dy[3] = {1, -1, 0};
+//
+//int dx[3] = {0, 1, 0};
+//int dy[3] = {1, 0, -1};
+//
+//int dx[3] = {1, 0, 0};
+//int dy[3] = {0, -1, 1};
+
+int dx[3] = {1, 0, 0};
+int dy[3] = {0, 1, -1};
+
+bool visited[maxn][maxn];
 
 //Định nghĩa các Steps là mỗi bước di chuyển
 struct Steps {
@@ -15,7 +32,7 @@ struct Steps {
     }
 };
 
-//Định nghãi đối tượng lưu các Steps
+//Định nghĩa đối tượng lưu các Steps
 struct Answer{
     vector<Steps> v_steps;
     Answer() {}
@@ -30,74 +47,61 @@ struct Answer{
         for(auto step : v_steps) {
             ans += step.json_Steps() + ",";
         }
-        ans.pop_back();
+        if(!v_steps.empty()) ans.pop_back();
         ans += "]}";
         return ans;
     }
 };
 
-//Định nghĩa các die/pattern
-struct Die{
-
-};
 //Định nghĩa bảng (lưu các giá trị 0-3)
 struct Board {
     int width = 0;
     int height = 0;
-    //int x = 0, y = 0;
-    int **arr;
+    vector<vector<int>> arr;
 
     Board() {}
 
-    Board(int w, int h) : width(w), height(h) {
-        arr = new int*[h];
-        for(int i = 0; i < h; ++i) {
-            arr[i] = new int[w];
-        }
+    Board(int w, int h) : width(w), height(h), arr(h, vector<int>(w)) {}
+
+    void read(ifstream &infile) {
+        for (int i = 0; i < height; ++i)
+            for (int j = 0; j < width; ++j)
+                infile >> arr[i][j];
     }
-//    board(int w, int h, int x, int y): x(x), y(y) {
-//        board(w, h);
-//    }
+
+    void print() const {
+        for (const auto &row : arr) {
+            for (int val : row) cout << val << " ";
+            cout << endl;
+        }
+        cout << endl;
+    }
 };
 
+//khởi tạo bảng từ dữ kiện đầu vào
 void init(Board &start_board, Board &goal_board){
     ifstream infile("input.txt");
     int w, h;
     infile >> w >> h;
-    //cout << w << " " << h <<endl;
+
     start_board = Board(w, h);
     goal_board = Board(w, h);
-    cout << "*" << endl;
-    for(int i = 0; i < h; ++i) {
-        for(int j = 0; j < w; ++j) {
-            infile >> start_board.arr[i][j];
-        }
-    }
-    for(int i = 0; i < h; ++i) {
-        for(int j = 0; j < w; ++j) {
-            infile >> goal_board.arr[i][j];
-        }
-    }
+
+    start_board.read(infile);
+    goal_board.read(infile);
 }
 
-void print_Board(Board board) {
-    for(int i = 0; i < board.height; ++i) {
-        for(int j = 0; j < board.width; ++j) {
-            cout << board.arr[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
 
 //lưu và cập nhật các Steps trong quá trình đưa ô (u, v) về vị trí (i, j)
 //vì tìm số lần lật chuỗi nên nếu lùi thì cần cộng để tìm ra vị trí của cái cần dời
+//sau khi tìm được, chỉ đơn giản cần thao tác tại vị trí muốn đưa tới
 void init_Steps(Board &board, Answer &answer, int i, int j, int u, int v) {
     int w = board.width;
     int h = board.height;
     int m = abs(v - j);
     int n = abs(u - i);
 
+    //đưa về cùng cột
     if(v > j) {
         vector<int> vt;
         for(int k = j; k < w; ++k) vt.push_back(board.arr[u][k]);
@@ -106,8 +110,8 @@ void init_Steps(Board &board, Answer &answer, int i, int j, int u, int v) {
             board.arr[u][k] = vt[x];
         }
 
-        for(int k = 1; k <= v - j; ++k) {
-            Steps step = Steps(0, v - k, u, 2);
+        for(int k = j; k <= v - 1; ++k) {
+            Steps step = Steps(0, j, u, 2);
             answer.push_Steps(step);
         }
     }
@@ -119,12 +123,13 @@ void init_Steps(Board &board, Answer &answer, int i, int j, int u, int v) {
             board.arr[u][k] = vt[x];
         }
 
-        for(int k = 1; k <= j - v; ++k) {
-            Steps step = Steps(0, v + k, u, 3);
+        for(int k = j; k >= v + 1; --k) {
+            Steps step = Steps(0, j, u, 3);
             answer.push_Steps(step);
         }
     }
 
+    //đưa về cùng hàng
     if(u > i) {
         vector<int> vt;
         for(int k = i; k < h; ++k) vt.push_back(board.arr[k][j]);
@@ -133,78 +138,79 @@ void init_Steps(Board &board, Answer &answer, int i, int j, int u, int v) {
             board.arr[k][j] = vt[x];
         }
 
-        for(int k = 1; k <= u - i; ++k) {
-            Steps step = Steps(0, j, u - k, 0);
+        for(int k = i; k <= u - 1; ++k) {
+            Steps step = Steps(0, j, i, 0);
             answer.push_Steps(step);
         }
     }
-    else if(u < i) {
-        vector<int> vt;
-        for(int k = 0; k <= i; ++k) vt.push_back(board.arr[k][j]);
-        for(int k = 0; k <= i; ++k) {
-            int x = (k + i + 1 - n) % (i + 1);
-            board.arr[k][j] = vt[x];
-        }
-
-        for(int k = 1; k <= i - u; ++k) {
-            Steps step = Steps(0, j, u + k, 1);
-            answer.push_Steps(step);
-        }
-    }
-    print_Board(board);
+//    else if(u < i) {
+//        vector<int> vt;
+//        for(int k = 0; k <= i; ++k) vt.push_back(board.arr[k][j]);
+//        for(int k = 0; k <= i; ++k) {
+//            int x = (k + i + 1 - n) % (i + 1);
+//            board.arr[k][j] = vt[x];
+//        }
+//
+//        for(int k = i; k >= u + 1; --k) {
+//            Steps step = Steps(0, j, i, 1);
+//            answer.push_Steps(step);
+//        }
+//    }
 }
+
 
 void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
     int m = start_board.height;
     int n = start_board.width;
-    cout << m << " " << n << endl;
+
     for(int i = 0; i < m * n; ++i) {
+        memset(visited, false, sizeof(visited));
         int j = i / n;
         int k = i % n;
-        int j1 = j, k1 = k;
-        int temp = i;
+        int j1, k1;
+
+        if(goal_board.arr[j][k] == start_board.arr[j][k]) continue;
+        queue<pair<int, int>> q;
+        q.push({j, k});
+        visited[j][k] = true;
+
         //đi tìm ô cần đổi vị trí
-        if(goal_board.arr[j][k] == start_board.arr[j1][k1]) continue;
-        while(goal_board.arr[j][k] != start_board.arr[j1][k1]) {
-            ++temp;
-            j1 = temp / n;
-            k1 = temp % n;
+        while(!q.empty()) {
+            pair<int, int> p = q.front();
+            q.pop();
+            j1 = p.first, k1 = p.second;
+
+            if(goal_board.arr[j][k] == start_board.arr[j1][k1]) break;
+
+            for(int t = 0; t < 3; ++t) {
+                int a = j1 + dx[t];
+                int b = k1 + dy[t];
+                if(a >= 0 && a < m && b >= 0 && b < n && !visited[a][b] && a * n + b > i && b >= k) {
+                    visited[a][b] = true;
+                    q.push({a, b});
+                }
+            }
         }
-        cout << i << " " << j << " " << k << " " << j1 << " " << k1 << endl;
-        //if(answer.v_steps.size() > 80000) return;
+
+        //cout << i << " " << j << " " << k << " " << j1 << " " << k1 << endl;
         init_Steps(start_board, answer, j, k, j1, k1);
     }
 }
-
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    Board start_board;
-    Board goal_board;
-
+    Board start_board, goal_board;
     Answer answer;
 
-//    Steps s = Steps(1, 2, 3, 0);
-//    Steps z = Steps(2, 1, 0, 3);
-//    Steps t = Steps(1, 0, 1, 1);
-//    Answer answer;
-//    answer.push_Steps(s);
-//    answer.push_Steps(z);
-//    answer.push_Steps(t);
-//    cout << answer.json_Answer();
-//    Steps m(1, 0, 1, 1);
-//    answer.push_Steps(m);
-//    cout << answer.json_Answer();
     init(start_board, goal_board);
-    print_Board(start_board);
-    print_Board(goal_board);
 
     die_cutting(start_board, goal_board, answer);
-    ofstream f("output3.txt");
+    die_cutting(start_board, goal_board, answer);
+    ofstream f("output.txt");
     f << answer.json_Answer() << endl;
-    //f << 2555 << endl;
+    cout << "OK";
     return 0;
 }
