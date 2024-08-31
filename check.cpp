@@ -204,6 +204,7 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
         queue<pair<int, int>> q;
         q.push({j, k});
         visited[j][k] = true;
+        vector<pair<int, int>> ans;
 
         //đi tìm ô cần đổi vị trí
         while(!q.empty()) {
@@ -211,8 +212,9 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
             q.pop();
             j1 = p.first, k1 = p.second;
 
-            if(goal_board.arr[j][k] == start_board.arr[j1][k1]) break;
-
+            if(goal_board.arr[j][k] == start_board.arr[j1][k1]) ans.push_back({j1, k1});
+            if(ans.size() > 100) break;
+            //if(goal_board.arr[j][k] == start_board.arr[j1][k1]) break;
             for(int t = 0; t < 3; ++t) {
                 int a = j1 + dx[t];
                 int b = k1 + dy[t];
@@ -222,9 +224,20 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
                 }
             }
         }
+        if(ans.size() > 0) {
+            pair<int, int> p = {ans[0].first, ans[0].second};
+            int mn = chuoi[abs(p.first - j)] + chuoi[abs(p.second - k)];
+            for(auto c : ans) {
+                if(chuoi[abs(c.first - j)] + chuoi[abs(c.second - k)] < mn) {
+                    mn = chuoi[abs(c.first - j)] + chuoi[abs(c.second - k)];
 
+                }
+            }
+            init_Steps(start_board, answer, j, k, p.first, p.second);
+        }
         //cout << i << " " << j << " " << k << " " << j1 << " " << k1 << endl;
-        init_Steps(start_board, answer, j, k, j1, k1);
+
+        //init_Steps(start_board, answer, j, k, j1, k1);
     }
 }
 

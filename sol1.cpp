@@ -3,8 +3,6 @@
 using namespace std;
 const int maxn = 256;
 int power2[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
-int check_count = 0;
-int chuoi[256];
 
 //int dx[3] = {0, 1, 0};
 //int dy[3] = {-1, 0, 1};
@@ -105,7 +103,6 @@ void init(Board &start_board, Board &goal_board){
 
     start_board.read(infile);
     goal_board.read(infile);
-    for(int i = 0; i < 256; ++i) chuoi[i] = tach(i).size();
 }
 
 
@@ -216,7 +213,7 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
             for(int t = 0; t < 3; ++t) {
                 int a = j1 + dx[t];
                 int b = k1 + dy[t];
-                if(a >= 0 && a < m && b >= 0 && b < n && !visited[a][b] && a * n + b > i && b >= k) {
+                if(a >= 0 && a < m && b >= 0 && b < n && !visited[a][b] && a * n + b > i) {
                     visited[a][b] = true;
                     q.push({a, b});
                 }
@@ -287,12 +284,12 @@ void check(Board &start_board, Board &goal_board, Answer answer) {
         //start_board.print();
     }
 
-
-//    for(int i = 0; i < start_board.height; ++i) {
-//        for(int j = 0; j < start_board.width; ++j) {
-//            if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
-//        }
-//    }
+    int check_count = 0;
+    for(int i = 0; i < start_board.height; ++i) {
+        for(int j = 0; j < start_board.width; ++j) {
+            if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
+        }
+    }
     cout << fixed << setprecision(2) << check_count << " " << answer.v_steps.size() << " " << (double)check_count - (double)answer.v_steps.size() / 20 << endl;
 }
 
@@ -307,16 +304,8 @@ int main() {
     init(start_board, goal_board);
     Board start_board1 = start_board;
 
-    //die_cutting(start_board, goal_board, answer);
-    while(check_count != start_board.width * start_board.height) {
-        die_cutting(start_board, goal_board, answer);
-        check_count = 0;
-        for(int i = 0; i < start_board.height; ++i) {
-            for(int j = 0; j < start_board.width; ++j) {
-                if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
-            }
-        }
-    }
+    die_cutting(start_board, goal_board, answer);
+
     ofstream f("output.txt");
     f << answer.json_Answer() << endl;
 
