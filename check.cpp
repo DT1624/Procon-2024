@@ -6,20 +6,17 @@ int power2[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
 int check_count = 0;
 int chuoi[256];
 
-//int dx[3] = {0, 1, 0};
-//int dy[3] = {-1, 0, 1};
-
-//int dx[3] = {0, 0, 1};
-//int dy[3] = {-1, 1, 0};
-
-//int dx[3] = {0, 0, 1};
-//int dy[3] = {1, -1, 0};
+//int dx_left[3] = {0, 1, -1};
+//int dy_left[3] = {1, 0, 0};
 //
-//int dx[3] = {0, 1, 0};
-//int dy[3] = {1, 0, -1};
+//int dx_right[3] = {0, -1, 1};
+//int dy_right[3] = {-1, 0, 0};
 //
-//int dx[3] = {1, 0, 0};
-//int dy[3] = {0, -1, 1};
+//int dx_top[3] = {1, 0, 0};
+//int dy_top[3] = {0, 1, -1};
+//
+//int dx_bottom[3] = {-1, 0, 0};
+//int dy_bottom[3] = {0, -1, 1};
 
 int dx[3] = {1, 0, 0};
 int dy[3] = {0, 1, -1};
@@ -297,15 +294,21 @@ void check(Board &start_board, Board &goal_board, Answer answer) {
                 }
             }
         }
+        int count_match = 0;
+        for(int j = 0; j < h; ++j) {
+            for(int k = 0; k < w; ++k)
+                if(start_board.arr[j][k] == goal_board.arr[j][k]) ++count_match;
+        }
+        //cout << fixed << setprecision(2) << (double)count_match - (double)(i + 1) / 20 << endl;
         //start_board.print();
     }
 
 
-//    for(int i = 0; i < start_board.height; ++i) {
-//        for(int j = 0; j < start_board.width; ++j) {
-//            if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
-//        }
-//    }
+    for(int i = 0; i < start_board.height; ++i) {
+        for(int j = 0; j < start_board.width; ++j) {
+            if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
+        }
+    }
     cout << fixed << setprecision(2) << check_count << " " << answer.v_steps.size() << " " << (double)check_count - (double)answer.v_steps.size() / 20 << endl;
 }
 
@@ -321,6 +324,7 @@ int main() {
     Board start_board1 = start_board;
 
     //die_cutting(start_board, goal_board, answer);
+    //die_cutting(start_board, goal_board, answer);
     while(check_count != start_board.width * start_board.height) {
         die_cutting(start_board, goal_board, answer);
         check_count = 0;
@@ -329,11 +333,12 @@ int main() {
                 if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
             }
         }
+        cout << fixed << setprecision(2) << check_count << " " << answer.v_steps.size() << " " << (double)check_count - (double)answer.v_steps.size() / 20 << endl;
     }
     ofstream f("output.txt");
     f << answer.json_Answer() << endl;
 
-    check(start_board1, goal_board, answer);
+    //check(start_board1, goal_board, answer);
     cout << "OK\n";
     return 0;
 }

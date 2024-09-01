@@ -3,8 +3,6 @@
 using namespace std;
 const int maxn = 256;
 int power2[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
-int check_count = 0;
-int chuoi[256];
 
 //int dx[3] = {0, 1, 0};
 //int dy[3] = {-1, 0, 1};
@@ -21,8 +19,8 @@ int chuoi[256];
 //int dx[3] = {1, 0, 0};
 //int dy[3] = {0, -1, 1};
 
-int dx[3] = {1, 0, 0};
-int dy[3] = {0, 1, -1};
+int dx[3] = {0, -1, 1};
+int dy[3] = {1, 0, 0};
 
 bool visited[maxn][maxn];
 
@@ -105,7 +103,6 @@ void init(Board &start_board, Board &goal_board){
 
     start_board.read(infile);
     goal_board.read(infile);
-    for(int i = 0; i < 256; ++i) chuoi[i] = tach(i).size();
 }
 
 
@@ -122,44 +119,10 @@ void init_Steps(Board &board, Answer &answer, int i, int j, int u, int v) {
     vector<int> v1 = tach(m);
     vector<int> v2 = tach(n);
 
-    //đưa về cùng cột
-    if(v > j) {
-        for(auto c : v1) {
-            for(int l = u; l < min(u + power2[c], h); ++l) {
-                vector<int> vt;
-                for(int k = j; k < w; ++k) vt.push_back(board.arr[l][k]);
-                for(int k = j; k < w; ++k) {
-                    int x = (k - j + w - j + power2[c]) % (w - j);
-                    board.arr[l][k] = vt[x];
-                }
-            }
-
-            Steps step = Steps(3 * c - 2, j, u, 2);
-            if(c == 0) step.p = 0;
-            answer.push_Steps(step);
-        }
-    }
-    else if(v < j) {
-        for(auto c : v1) {
-            for(int l = u; l < min(u + power2[c], h); ++l) {
-                vector<int> vt;
-                for(int k = 0; k <= j; ++k) vt.push_back(board.arr[l][k]);
-                for(int k = 0; k <= j; ++k) {
-                    int x = (k + j + 1 - power2[c]) % (j + 1);
-                    board.arr[l][k] = vt[x];
-                }
-            }
-
-            Steps step = Steps(3 * c - 2, j - power2[c] + 1, u, 3);
-            if(c == 0) step.p = 0;
-            answer.push_Steps(step);
-        }
-    }
-
     //đưa về cùng hàng
     if(u > i) {
         for(auto c : v2) {
-            for(int l = j; l < min(j + power2[c], w); ++l) {
+            for(int l = v; l < min(v + power2[c], w); ++l) {
                 vector<int> vt;
                 for(int k = i; k < h; ++k) vt.push_back(board.arr[k][l]);
                 for(int k = i; k < h; ++k) {
@@ -168,24 +131,60 @@ void init_Steps(Board &board, Answer &answer, int i, int j, int u, int v) {
                 }
             }
 
-            Steps step = Steps(3 * c - 2, j, i, 0);
+            Steps step = Steps(3 * c - 2, v, i, 0);
+            if(c == 0) step.p = 0;
+            answer.push_Steps(step);
+        }
+    } else if(u < i) {
+        for(auto c : v2) {
+            for(int l = v; l < min(v + power2[c], w); ++l) {
+                vector<int> vt;
+                for(int k = 0; k <= i; ++k) vt.push_back(board.arr[k][l]);
+                for(int k = 0; k <= i; ++k) {
+                    int x = (k + i + 1 - power2[c]) % (i + 1);
+                    board.arr[k][l] = vt[x];
+                }
+            }
+
+            Steps step = Steps(3 * c - 2, v, i - power2[c] + 1, 1);
             if(c == 0) step.p = 0;
             answer.push_Steps(step);
         }
     }
-//    else if(u < i) {
-//        vector<int> vt;
-//        for(int k = 0; k <= i; ++k) vt.push_back(board.arr[k][j]);
-//        for(int k = 0; k <= i; ++k) {
-//            int x = (k + i + 1 - n) % (i + 1);
-//            board.arr[k][j] = vt[x];
-//        }
-//
-//        for(int k = i; k >= u + 1; --k) {
-//            Steps step = Steps(0, j, i, 1);
-//            answer.push_Steps(step);
-//        }
-//    }
+
+    //đưa về cùng cột
+    if(v > j) {
+        for(auto c : v1) {
+            for(int l = i; l < min(i + power2[c], h); ++l) {
+                vector<int> vt;
+                for(int k = j; k < w; ++k) vt.push_back(board.arr[l][k]);
+                for(int k = j; k < w; ++k) {
+                    int x = (k - j + w - j + power2[c]) % (w - j);
+                    board.arr[l][k] = vt[x];
+                }
+            }
+
+            Steps step = Steps(3 * c - 2, j, i, 2);
+            if(c == 0) step.p = 0;
+            answer.push_Steps(step);
+        }
+    }
+    else if(v < j) {
+        for(auto c : v1) {
+            for(int l = i; l < min(i + power2[c], h); ++l) {
+                vector<int> vt;
+                for(int k = 0; k <= j; ++k) vt.push_back(board.arr[l][k]);
+                for(int k = 0; k <= j; ++k) {
+                    int x = (k + j + 1 - power2[c]) % (j + 1);
+                    board.arr[l][k] = vt[x];
+                }
+            }
+
+            Steps step = Steps(3 * c - 2, j - power2[c] + 1, i, 3);
+            if(c == 0) step.p = 0;
+            answer.push_Steps(step);
+        }
+    }
     //board.print();
 }
 
@@ -196,8 +195,8 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
 
     for(int i = 0; i < m * n; ++i) {
         memset(visited, false, sizeof(visited));
-        int j = i / n;
-        int k = i % n;
+        int k = i / m;
+        int j = i % m;
         int j1, k1;
 
         if(goal_board.arr[j][k] == start_board.arr[j][k]) continue;
@@ -216,7 +215,7 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
             for(int t = 0; t < 3; ++t) {
                 int a = j1 + dx[t];
                 int b = k1 + dy[t];
-                if(a >= 0 && a < m && b >= 0 && b < n && !visited[a][b] && a * n + b > i && b >= k) {
+                if(a >= 0 && a < m && b >= 0 && b < n && !visited[a][b] && a + b * m > i) {
                     visited[a][b] = true;
                     q.push({a, b});
                 }
@@ -258,8 +257,8 @@ void check(Board &start_board, Board &goal_board, Answer answer) {
                 int e = min(x + power2[d], h);
                 for(int k = 0; k < e; ++k) vt.push_back(start_board.arr[k][l]);
                 for(int k = 0; k < e; ++k) {
-                    int z = (k + e - e + max(0, x)) % (e);
-                   start_board.arr[k][l] = vt[z];
+                    int z = (k + max(0, x)) % e;
+                    start_board.arr[k][l] = vt[z];
                 }
             }
         } else if(s == 2) {
@@ -284,16 +283,10 @@ void check(Board &start_board, Board &goal_board, Answer answer) {
                 }
             }
         }
-        int count_match = 0;
-        for(int j = 0; j < h; ++j) {
-            for(int k = 0; k < w; ++k)
-                if(start_board.arr[j][k] == goal_board.arr[j][k]) ++count_match;
-        }
-        //cout << fixed << setprecision(2) << (double)count_match - (double)(i + 1) / 20 << endl;
         //start_board.print();
     }
 
-
+    int check_count = 0;
     for(int i = 0; i < start_board.height; ++i) {
         for(int j = 0; j < start_board.width; ++j) {
             if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
@@ -313,22 +306,12 @@ int main() {
     init(start_board, goal_board);
     Board start_board1 = start_board;
 
-    //die_cutting(start_board, goal_board, answer);
-    while(check_count != start_board.width * start_board.height) {
-        die_cutting(start_board, goal_board, answer);
-        check_count = 0;
-        for(int i = 0; i < start_board.height; ++i) {
-            for(int j = 0; j < start_board.width; ++j) {
-                if(start_board.arr[i][j] == goal_board.arr[i][j]) check_count++;
-            }
-        }
-        cout << fixed << setprecision(2) << check_count << " " << answer.v_steps.size() << " " << (double)check_count - (double)answer.v_steps.size() / 20 << endl;
-    }
+    die_cutting(start_board, goal_board, answer);
 
     ofstream f("output.txt");
     f << answer.json_Answer() << endl;
 
-    //check(start_board1, goal_board, answer);
+    check(start_board1, goal_board, answer);
     cout << "OK\n";
     return 0;
 }

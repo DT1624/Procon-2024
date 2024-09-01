@@ -286,6 +286,12 @@ void check(Board &start_board, Board &goal_board, Answer answer) {
                 }
             }
         }
+        int count_match = 0;
+        for(int j = 0; j < h; ++j) {
+            for(int k = 0; k < w; ++k)
+                if(start_board.arr[j][k] == goal_board.arr[j][k]) ++count_match;
+        }
+        cout << fixed << setprecision(2) << (double)count_match - (double)(i + 1) / 20 << endl;
         //start_board.print();
     }
 
