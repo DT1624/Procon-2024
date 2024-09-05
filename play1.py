@@ -1,6 +1,6 @@
 import json
 with open("input1.txt", "w") as f:
-    with open("output3.txt", "r") as file:
+    with open("output.txt", "r") as file:
         data = json.loads(file.read())
         f.write(str(data["n"]) + "\n")
         steps = data["ops"]

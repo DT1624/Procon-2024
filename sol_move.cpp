@@ -3,7 +3,7 @@
 using namespace std;
 const int maxn = 256;
 int power2[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
-//int check_count = 0;
+int check_count = 0;
 int chuoi[256];
 
 int dx_left[3] = {0, 1, -1};
@@ -411,11 +411,19 @@ void die_cutting(Board &start_board, Board &goal_board, Answer &answer) {
         }
     }
     cout << mnx << " " << mxx << " " << mny << " " << mxy << endl;
+//    for(int i = mnx; i <= mxx; ++i) {
+//        for(int j = mny; j <= mxy; ++j) {
+//            cout << start_board.arr[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+
+
 
     if(mxx == m - 1 && mxy == n - 1) {
         for(int i = mnx; i <= mxx; ++i) {
             for(int j = mny; j <= mxy; ++j) {
-                    //cout << i << " " << j << endl;
+                //cout << i << " " << j << endl;
                 memset(visited, false, sizeof(visited));
                 if(goal_board.arr[i][j] == start_board.arr[i][j]) continue;
 
